@@ -1,9 +1,0 @@
-# IR Server M5StampC3
-
-## LICENSE
-
-MIT
-
-### imported
-
-- adafruit_httpserver (MIT): https://github.com/adafruit/Adafruit_CircuitPython_HTTPServer
