@@ -16,7 +16,7 @@ data = {
     ]
 }
 
-url = f"http://{host_name}/api/ir"
+url = f"http://192.168.1.193/api/ir"
 
 res = requests.post(url, json.dumps(data))
 
