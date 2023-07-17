@@ -25,6 +25,11 @@ print("body:")
 print(res.text)
 ```
 
+## 必要なもの
+
+- M5Stamp C3 Mate https://www.switch-science.com/products/7474
+- M5Stack 用赤外線送受信ユニット https://www.switch-science.com/products/5699
+
 ## install
 
 CIRCUIT PYTHON: https://circuitpython.org/board/m5stack_stamp_c3/
