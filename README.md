@@ -1,6 +1,10 @@
 # IR Server M5StampC3
 
+<img src="docs/photo.jpg" width="300px" />
+
 M5StampC3 で WebServer を立てて、赤外線信号を JSON 形式で POST すると、送信してくれるやつ。
+
+CircuitPyhon 上に実装。
 
 ```python
 import requests
@@ -20,6 +24,18 @@ print(f"status: {res.status_code}")
 print("body:")
 print(res.text)
 ```
+
+## install
+
+CIRCUIT PYTHON: https://circuitpython.org/board/m5stack_stamp_c3/
+
+ファームウェアやコードのアップロードの方法など https://learn.adafruit.com/circuitpython-with-esp32-quick-start
+
+ESP32-C3 は USB デバイス機能はないため、CIRCUIT PYTHON のファームウェアを焼いた後は、HTTP 経由でコードをアップロードする。
+
+https://learn.adafruit.com/circuitpython-with-esp32-quick-start/setting-up-web-workflow
+
+main.py を code.py としてアップロードする。
 
 ## LICENSE
 
