@@ -61,11 +61,27 @@ def test_send(c):
             588,
         ]
     }
-    url = f"http://{host_name}/api/ir"
+    url = f"http://{host_name}/api/send_ir"
 
     print(url)
 
     res = requests.post(url, json.dumps(data))
+
+    print(f"status: {res.status_code}")
+    print("body:")
+    print(res.text)
+
+@task
+def test_receive(c):
+    host_name = (
+        CIRCUITPY_HOSTNAME if CIRCUITPY_HOSTNAME else c.config.circuitpy_hostname
+    )
+
+    url = f"http://{host_name}/api/receive_ir"
+
+    print(url)
+
+    res = requests.post(url)
 
     print(f"status: {res.status_code}")
     print("body:")

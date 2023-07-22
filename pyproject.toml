@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "esp32c3-ir-server-circuitpython"
+name = "esp32c3-ir-server"
 version = "0.1.0"
 description = ""
 authors = ["Atsushi Morimoto (74th) <74th.tech@gmail.com>"]
 readme = "README.md"
-packages = [{include = "esp32c3-ir-server-circuitpython"}]
+packages = []
 
 [tool.poetry.dependencies]
 python = "^3.10"
