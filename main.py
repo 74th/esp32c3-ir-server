@@ -27,13 +27,11 @@ def init():
 def flash_led(g: int, r: int, b: int):
     neopixel_write.neopixel_write(led_pin, bytearray([g, r, b]))
 
-def send_ir(pulse: list[int]):
+def send_ir(pulses: list[int]):
     with pulseio.PulseOut(IR_SEND_PIN_NO) as pulseout:
-        data = array.array("H", pulse)
-
         print("send")
         for _ in range(3):
-            pulseout.send(array.array("H", data))
+            pulseout.send(array.array("H", pulses))
             time.sleep(0.025)
         print("send done")
 
