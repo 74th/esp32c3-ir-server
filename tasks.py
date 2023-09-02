@@ -1,3 +1,5 @@
+import ast
+import pathlib
 from invoke import task
 import json
 import requests
@@ -6,62 +8,86 @@ CIRCUITPY_HOSTNAME = ""
 CIRCUITPY_WEB_API_PASSWORD = ""
 
 
-@task
-def upload(c, p="main.py"):
-    host_name = (
-        CIRCUITPY_HOSTNAME if CIRCUITPY_HOSTNAME else c.config.circuitpy_hostname
-    )
-    password = (
+def select_host(c, host="") -> str:
+    if host:
+        return host
+    elif CIRCUITPY_HOSTNAME:
+        return CIRCUITPY_HOSTNAME
+    elif c.config.circuitpy_hostname:
+        return c.config.circuitpy_hostname
+    raise Exception("hostname is not set")
+
+
+def select_pass(c) -> str:
+    return (
         CIRCUITPY_WEB_API_PASSWORD
         if CIRCUITPY_WEB_API_PASSWORD
         else c.config.circuitpy_web_api_password
     )
-    if p == "main.py":
-        target_path = "code.py"
-    else:
-        target_path = p
-
-    c.run(
-        f"curl -v -u :{password} -T {p} -L --location-trusted http://{host_name}/fs/{target_path}"
-    )
 
 
 @task
-def test_send(c):
-    host_name = (
-        CIRCUITPY_HOSTNAME if CIRCUITPY_HOSTNAME else c.config.circuitpy_hostname
+def upload(c, src="main.py", host="", dst="", code=False):
+    host = select_host(host)
+    password = select_pass(c)
+
+    if src == "main.py" or code:
+        dst = "code.py"
+    else:
+        dst = src
+
+    cmd = (
+        f"curl -v -u :{password} -T {src} -L --location-trusted http://{host}/fs/{dst}"
+    )
+
+    print(cmd.replace(password, "********"))
+
+    c.run(cmd)
+
+
+@task
+def mkdir(
+    c,
+    directory,
+    host="",
+):
+    host = select_host(host)
+    password = select_pass(c)
+
+    cmd = f"curl -XPUT -v -u :{password} -L --location-trusted http://{host}/fs/{directory}"
+
+    print(cmd.replace(password, "********"))
+
+    c.run(cmd)
+
+
+@task
+def upload_libs(c, path="lib", host=""):
+    for item in pathlib.Path(path).iterdir():
+        print(item.as_posix())
+        if item.is_dir():
+            mkdir(c, f"{item}/", host=host)
+            upload_libs(c, path=item, host=host)
+            continue
+        if item.is_file() and item.suffix in (".mpy", ".py"):
+            upload(c, src=item.as_posix(), host=host)
+
+
+@task
+def test_send(c, host=""):
+    host = select_host(c, host)
+
+    tv_on = ast.literal_eval(
+        "[2403,642,1170,645,588,621,1167,648,588,621,1191,624,588,621,588,621,1167,648,588,621,588,624,585,624,588]"
+    )
+    living_aircon_off = ast.literal_eval(
+        "[210, 8439, 231, 11289, 102, 330, 147, 6939, 267, 17226, 153]"
     )
 
     data = {
-        "pulse": [
-            2403,
-            642,
-            1170,
-            645,
-            588,
-            621,
-            1167,
-            648,
-            588,
-            621,
-            1191,
-            624,
-            588,
-            621,
-            588,
-            621,
-            1167,
-            648,
-            588,
-            621,
-            588,
-            624,
-            585,
-            624,
-            588,
-        ]
+        "pulse": living_aircon_off,
     }
-    url = f"http://{host_name}/api/send_ir"
+    url = f"http://{host}/api/send_ir"
 
     print(url)
 
@@ -71,13 +97,12 @@ def test_send(c):
     print("body:")
     print(res.text)
 
-@task
-def test_receive(c):
-    host_name = (
-        CIRCUITPY_HOSTNAME if CIRCUITPY_HOSTNAME else c.config.circuitpy_hostname
-    )
 
-    url = f"http://{host_name}/api/receive_ir"
+@task
+def test_receive(c, host=""):
+    host = select_host(c, host)
+
+    url = f"http://{host}/api/receive_ir"
 
     print(url)
 

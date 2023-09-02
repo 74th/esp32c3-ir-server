@@ -10,17 +10,22 @@ import digitalio
 import board
 from adafruit_httpserver import Server, Request, Response
 
-IR_SEND_PIN_NO = board.G1
-IR_RECEIVE_PIN_NO = board.G0
-LED_PIN_NO = board.NEOPIXEL
+if board.board_id == "espressif_esp32s3_devkitc_1_n8r8":
+    IR_SEND_PIN_NO = board.IO2
+    IR_RECEIVE_PIN_NO = board.IO1
+    LED_PIN_NO = board.IO4
+else:
+    IR_SEND_PIN_NO = board.IO1
+    IR_RECEIVE_PIN_NO = board.IO0
+    LED_PIN_NO = board.IO2
 
 def init():
     global led_pin, pulsein
     print("initializing...")
-    led_pin = digitalio.DigitalInOut(board.NEOPIXEL)
+    led_pin = digitalio.DigitalInOut(LED_PIN_NO)
     led_pin.direction = digitalio.Direction.OUTPUT
 
-    pulsein = pulseio.PulseIn(IR_RECEIVE_PIN_NO, maxlen=120, idle_state=True)
+    pulsein = pulseio.PulseIn(IR_RECEIVE_PIN_NO, maxlen=2048, idle_state=True)
     pulsein.pause()
     print("done")
 
@@ -47,6 +52,7 @@ def receive_ir() -> list[int]:
     pulsein.resume()
     while not is_received and (time.monotonic() - start) < timeout:
         time.sleep(0.1)
+        print(f"len: {len(pulsein)}")
         while pulsein:
             pulse = pulsein.popleft()
             pulses.append(pulse)
@@ -77,7 +83,7 @@ def run_server():
         print(pulse)
         send_ir(pulse)
 
-        flash_led(0, 0, 255)
+        flash_led(0, 0, 0x08)
 
         res = {"success": True}
         return Response(request, json.dumps(res))
@@ -89,7 +95,7 @@ def run_server():
 
         pulses = receive_ir()
 
-        flash_led(0, 0, 255)
+        flash_led(0, 0, 0x08)
 
         res = {
             "success": len(pulses) > 0,
@@ -100,7 +106,7 @@ def run_server():
 
         return Response(request, json.dumps(res))
 
-    flash_led(0, 0, 255)
+    flash_led(0, 0, 0x08)
 
     print("start server")
 
