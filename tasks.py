@@ -29,7 +29,7 @@ def select_pass(c) -> str:
 
 @task
 def upload(c, src="main.py", host="", dst="", code=False):
-    host = select_host(host)
+    host = select_host(c, host)
     password = select_pass(c)
 
     if src == "main.py" or code:
@@ -52,7 +52,7 @@ def mkdir(
     directory,
     host="",
 ):
-    host = select_host(host)
+    host = select_host(c, host)
     password = select_pass(c)
 
     cmd = f"curl -XPUT -v -u :{password} -L --location-trusted http://{host}/fs/{directory}"
